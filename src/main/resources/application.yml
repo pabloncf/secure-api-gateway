@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: secure-api-gateway
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gateway_db}
+    username: ${POSTGRES_USER:gateway}
+    password: ${POSTGRES_PASSWORD:gateway}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
