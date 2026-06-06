@@ -20,3 +20,6 @@ Thumbs.db
 *.log
 logs/
 
+.claude/
+
+secure-api-gateway-phases.md

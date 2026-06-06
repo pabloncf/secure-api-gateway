@@ -31,3 +31,7 @@ management:
     web:
       exposure:
         include: health, info
+
+jwt:
+  secret: ${JWT_SECRET:changeme-this-is-a-very-long-secret-key-for-development-only-256bits}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000}
