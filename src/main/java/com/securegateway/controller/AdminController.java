@@ -1,8 +1,10 @@
 package com.securegateway.controller;
 
+import com.securegateway.dto.MetricsResponse;
 import com.securegateway.dto.SecurityEventResponse;
 import com.securegateway.model.SecurityEventType;
 import com.securegateway.repository.SecurityEventRepository;
+import com.securegateway.service.MetricsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +20,11 @@ import java.util.List;
 public class AdminController {
 
     private final SecurityEventRepository eventRepository;
+    private final MetricsService metricsService;
 
-    public AdminController(SecurityEventRepository eventRepository) {
+    public AdminController(SecurityEventRepository eventRepository, MetricsService metricsService) {
         this.eventRepository = eventRepository;
+        this.metricsService = metricsService;
     }
 
     @GetMapping("/events")
@@ -39,6 +43,12 @@ public class AdminController {
                 .toList();
 
         return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/metrics")
+    public ResponseEntity<MetricsResponse> getMetrics(
+            @RequestParam(required = false, defaultValue = "24") int windowHours) {
+        return ResponseEntity.ok(metricsService.getMetrics(windowHours));
     }
 
     private Instant parseLast(String last) {
