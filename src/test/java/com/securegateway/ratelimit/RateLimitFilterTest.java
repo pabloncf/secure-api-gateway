@@ -1,6 +1,7 @@
 package com.securegateway.ratelimit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.securegateway.event.SecurityEventPublisher;
 import com.securegateway.model.Role;
 import com.securegateway.model.User;
 import jakarta.servlet.FilterChain;
@@ -30,6 +31,9 @@ class RateLimitFilterTest {
 
     @Mock
     private ObjectMapper objectMapper;
+
+    @Mock
+    private SecurityEventPublisher eventPublisher;
 
     @InjectMocks
     private RateLimitFilter rateLimitFilter;

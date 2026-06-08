@@ -2,6 +2,7 @@ package com.securegateway.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.securegateway.dto.DataRequest;
+import com.securegateway.event.SecurityEventPublisher;
 import com.securegateway.exception.GlobalExceptionHandler;
 import com.securegateway.model.Role;
 import com.securegateway.model.User;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +27,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 class ApiControllerValidationTest {
 
+    @Mock
+    private SecurityEventPublisher eventPublisher;
+
     @InjectMocks
     private ApiController apiController;
 
@@ -37,7 +42,7 @@ class ApiControllerValidationTest {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(apiController)
-                .setControllerAdvice(new GlobalExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler(eventPublisher))
                 .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
                 .build();
 

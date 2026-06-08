@@ -1,6 +1,8 @@
 package com.securegateway.ratelimit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.securegateway.event.SecurityEventPublisher;
+import com.securegateway.model.SecurityEventType;
 import com.securegateway.model.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,10 +23,13 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitService rateLimitService;
     private final ObjectMapper objectMapper;
+    private final SecurityEventPublisher eventPublisher;
 
-    public RateLimitFilter(RateLimitService rateLimitService, ObjectMapper objectMapper) {
+    public RateLimitFilter(RateLimitService rateLimitService, ObjectMapper objectMapper,
+                           SecurityEventPublisher eventPublisher) {
         this.rateLimitService = rateLimitService;
         this.objectMapper = objectMapper;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -47,6 +52,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         if (!result.allowed()) {
+            eventPublisher.publish(SecurityEventType.RATE_LIMIT_EXCEEDED, request,
+                    "Limit: " + result.limit() + "/min", user.getEmail());
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             objectMapper.writeValue(response.getWriter(), Map.of(

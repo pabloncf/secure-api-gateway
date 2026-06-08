@@ -3,10 +3,14 @@ package com.securegateway.controller;
 import com.securegateway.dto.AuthResponse;
 import com.securegateway.dto.LoginRequest;
 import com.securegateway.dto.RegisterRequest;
+import com.securegateway.event.SecurityEventPublisher;
+import com.securegateway.model.SecurityEventType;
 import com.securegateway.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final SecurityEventPublisher eventPublisher;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, SecurityEventPublisher eventPublisher) {
         this.authService = authService;
+        this.eventPublisher = eventPublisher;
     }
 
     @PostMapping("/register")
@@ -28,7 +34,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
+                                              HttpServletRequest httpRequest) {
+        try {
+            AuthResponse response = authService.login(request);
+            eventPublisher.publish(SecurityEventType.LOGIN_SUCCESS, httpRequest, null, request.getEmail());
+            return ResponseEntity.ok(response);
+        } catch (BadCredentialsException e) {
+            eventPublisher.publish(SecurityEventType.LOGIN_FAILED, httpRequest,
+                    "Invalid credentials", request.getEmail());
+            throw e;
+        }
     }
 }

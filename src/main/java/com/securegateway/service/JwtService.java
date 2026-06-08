@@ -2,6 +2,7 @@ package com.securegateway.service;
 
 import com.securegateway.model.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,8 +12,13 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+
+
 @Service
 public class JwtService {
+
+    public enum TokenStatus { VALID, EXPIRED, INVALID }
+
 
     private final SecretKey secretKey;
     private final long expirationMs;
@@ -40,11 +46,17 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token) {
+        return getTokenStatus(token) == TokenStatus.VALID;
+    }
+
+    public TokenStatus getTokenStatus(String token) {
         try {
-            Claims claims = parseClaims(token);
-            return !claims.getExpiration().before(new Date());
+            parseClaims(token);
+            return TokenStatus.VALID;
+        } catch (ExpiredJwtException e) {
+            return TokenStatus.EXPIRED;
         } catch (Exception e) {
-            return false;
+            return TokenStatus.INVALID;
         }
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.securegateway.dto.AuthResponse;
 import com.securegateway.dto.LoginRequest;
 import com.securegateway.dto.RegisterRequest;
+import com.securegateway.event.SecurityEventPublisher;
 import com.securegateway.exception.GlobalExceptionHandler;
 import com.securegateway.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,9 @@ class AuthControllerTest {
     @Mock
     private AuthService authService;
 
+    @Mock
+    private SecurityEventPublisher eventPublisher;
+
     @InjectMocks
     private AuthController authController;
 
@@ -39,7 +43,7 @@ class AuthControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(authController)
-                .setControllerAdvice(new GlobalExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler(eventPublisher))
                 .build();
     }
 

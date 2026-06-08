@@ -1,6 +1,9 @@
 package com.securegateway.security;
 
+import com.securegateway.event.SecurityEventPublisher;
+import com.securegateway.model.SecurityEventType;
 import com.securegateway.service.JwtService;
+import com.securegateway.service.JwtService.TokenStatus;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,10 +23,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final SecurityEventPublisher eventPublisher;
 
-    public JwtAuthFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtAuthFilter(JwtService jwtService,
+                         UserDetailsService userDetailsService,
+                         SecurityEventPublisher eventPublisher) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -38,8 +45,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+        TokenStatus status = jwtService.getTokenStatus(token);
 
-        if (!jwtService.isTokenValid(token)) {
+        if (status == TokenStatus.EXPIRED) {
+            eventPublisher.publish(SecurityEventType.TOKEN_INVALID, request, "Token expired", null);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (status == TokenStatus.INVALID) {
+            eventPublisher.publish(SecurityEventType.TOKEN_INVALID, request, "Invalid token", null);
             filterChain.doFilter(request, response);
             return;
         }
