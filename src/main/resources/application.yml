@@ -35,3 +35,8 @@ management:
 jwt:
   secret: ${JWT_SECRET:changeme-this-is-a-very-long-secret-key-for-development-only-256bits}
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+
+rate-limit:
+  free-rpm: ${RATE_LIMIT_FREE_RPM:10}
+  pro-rpm: ${RATE_LIMIT_PRO_RPM:60}
+  admin-rpm: ${RATE_LIMIT_ADMIN_RPM:-1}
