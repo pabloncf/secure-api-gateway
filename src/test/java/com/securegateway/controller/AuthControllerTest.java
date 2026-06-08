@@ -49,7 +49,7 @@ class AuthControllerTest {
 
         RegisterRequest request = new RegisterRequest();
         request.setEmail("new@example.com");
-        request.setPassword("password123");
+        request.setPassword("Secure@123");
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

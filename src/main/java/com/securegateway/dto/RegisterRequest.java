@@ -1,5 +1,6 @@
 package com.securegateway.dto;
 
+import com.securegateway.validation.StrongPassword;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -12,6 +13,7 @@ public class RegisterRequest {
 
     @NotBlank
     @Size(min = 8, max = 100)
+    @StrongPassword
     private String password;
 
     public String getEmail() { return email; }
