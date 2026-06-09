@@ -62,6 +62,13 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
+      - name: Print failsafe errors
+        if: failure()
+        run: |
+          find target/failsafe-reports -name "*.txt" 2>/dev/null | while read f; do
+            echo "=== $f ==="; head -80 "$f"; echo
+          done
+
       - name: Upload failsafe reports
         if: always()
         uses: actions/upload-artifact@v4
