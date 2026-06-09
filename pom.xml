@@ -19,7 +19,7 @@
 
     <properties>
         <java.version>17</java.version>
-        <jacoco.version>0.8.11</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
     </properties>
 
     <dependencies>
@@ -150,6 +150,14 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <!-- Prevent JaCoCo from instrumenting shaded third-party classes;
+                                 instrumenting them breaks their static initializers at runtime -->
+                            <excludes>
+                                <exclude>org/testcontainers/shaded/**</exclude>
+                                <exclude>com/github/dockerjava/shaded/**</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                     <!-- Report generated in verify phase: includes unit + integration coverage -->
                     <execution>

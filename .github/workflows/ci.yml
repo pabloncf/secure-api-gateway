@@ -46,8 +46,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Verify Docker is available
+        run: docker info
+
       - name: Run full test suite with coverage enforcement
         run: mvn verify -B
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
 
       - name: Upload JaCoCo coverage report
         if: always()
