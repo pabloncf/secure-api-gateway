@@ -46,8 +46,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Verify Docker is available
-        run: docker info
+      - name: Pre-pull test images
+        run: |
+          docker pull postgres:15-alpine
+          docker pull redis:7-alpine
 
       - name: Run full test suite with coverage enforcement
         run: mvn verify -B
@@ -66,7 +68,10 @@ jobs:
         if: failure()
         run: |
           find target/failsafe-reports -name "*.txt" 2>/dev/null | while read f; do
-            echo "=== $f ==="; head -80 "$f"; echo
+            echo "=== $f ==="; cat "$f"; echo
+          done
+          find target/failsafe-reports -name "*.dump*" 2>/dev/null | while read f; do
+            echo "=== DUMP: $f ==="; cat "$f"; echo
           done
 
       - name: Upload failsafe reports
