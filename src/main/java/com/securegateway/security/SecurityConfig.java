@@ -1,7 +1,6 @@
 package com.securegateway.security;
 
 import com.securegateway.ratelimit.RateLimitFilter;
-import com.securegateway.repository.UserRepository;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -26,14 +24,14 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final RateLimitFilter rateLimitFilter;
-    private final UserRepository userRepository;
+    private final UserDetailsService userDetailsService;
 
     public SecurityConfig(JwtAuthFilter jwtAuthFilter,
                           RateLimitFilter rateLimitFilter,
-                          UserRepository userRepository) {
+                          UserDetailsService userDetailsService) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.rateLimitFilter = rateLimitFilter;
-        this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
@@ -62,15 +60,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return email -> userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-    }
-
-    @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService());
+        provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
