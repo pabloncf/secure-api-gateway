@@ -70,6 +70,9 @@ jobs:
           find target/failsafe-reports -name "*.txt" 2>/dev/null | while read f; do
             echo "=== $f ==="; cat "$f"; echo
           done
+          find target/failsafe-reports -name "*.xml" 2>/dev/null | while read f; do
+            echo "=== XML: $f ==="; grep -A 200 "<error" "$f" | head -250; echo
+          done
           find target/failsafe-reports -name "*.dump*" 2>/dev/null | while read f; do
             echo "=== DUMP: $f ==="; cat "$f"; echo
           done
