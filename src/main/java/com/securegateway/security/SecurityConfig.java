@@ -22,20 +22,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
-    private final RateLimitFilter rateLimitFilter;
     private final UserDetailsService userDetailsService;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter,
-                          RateLimitFilter rateLimitFilter,
-                          UserDetailsService userDetailsService) {
-        this.jwtAuthFilter = jwtAuthFilter;
-        this.rateLimitFilter = rateLimitFilter;
+    public SecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthFilter jwtAuthFilter,
+                                                   RateLimitFilter rateLimitFilter) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
